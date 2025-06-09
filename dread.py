@@ -38,7 +38,7 @@ def dread_json_to_markdown(dread_assessment):
                 discoverability = threat.get('Discoverability', 0)
                 
                 # Calculate the Risk Score
-                risk_score = (damage_potential + reproducibility + exploitability + affected_users + discoverability) / 5
+                risk_score = (damage_potential + reproducibility + exploitability + affected_users + discoverability)
                 
                 # Escape any pipe characters in text fields to prevent table formatting issues
                 threat_type = str(threat_type).replace('|', '\\|')
@@ -66,42 +66,50 @@ def dread_json_to_markdown(dread_assessment):
 # Function to create a prompt to generate mitigating controls
 def create_dread_assessment_prompt(threats):
     prompt = f"""
-Act as a cyber security expert with more than 20 years of experience in threat modeling using STRIDE and DREAD methodologies.
-Your task is to produce a DREAD risk assessment for the threats identified in a threat model.
-Below is the list of identified threats:
+Act as a cybersecurity expert with over 20 years of experience in threat modeling using STRIDE and DREAD methodologies.
+Your task is to generate a DREAD-based risk assessment for the following identified threats:
 {threats}
-When providing the risk assessment, use a JSON formatted response with a top-level key "Risk Assessment" and a list of threats, each with the following sub-keys:
-- "Threat Type": A string representing the type of threat (e.g., "Spoofing").
-- "Scenario": A string describing the threat scenario.
-- "Damage Potential": An integer between 1 and 10.
-- "Reproducibility": An integer between 1 and 10.
-- "Exploitability": An integer between 1 and 10.
-- "Affected Users": An integer between 1 and 10.
-- "Discoverability": An integer between 1 and 10.
-Assign a value between 1 and 10 for each sub-key based on the DREAD methodology. Use the following scale:
-- 1-3: Low
-- 4-6: Medium
-- 7-10: High
+
+Please provide the response in JSON format with a top-level key "Risk Assessment" that includes a list of threat objects. Each object must have the following fields:
+
+"Threat Type": A string representing the STRIDE threat category (e.g., "Spoofing").
+"Scenario": A brief description of the threat scenario.
+"Damage Potential": An integer between 1 and 3 (3 = high impact).
+"Reproducibility": An integer between 1 and 3.
+"Exploitability": An integer between 1 and 3.
+"Affected Users": An integer between 1 and 3.
+"Discoverability": An integer between 1 and 3.
+"Risk Score": The sum of the five values above, ranging from 5 to 15.
+
+"Risk Rating": A classification based on the score:
+12–15 → "Major"
+8–11 → "Moderate"
+5–7 → "Minor"
+
+Use the following severity scale for each DREAD category:
+1 = Low
+2 = Medium
+3 = High
 Ensure the JSON response is correctly formatted and does not contain any additional text. Here is an example of the expected JSON response format:
 {{
   "Risk Assessment": [
     {{
       "Threat Type": "Spoofing",
       "Scenario": "An attacker could create a fake OAuth2 provider and trick users into logging in through it.",
-      "Damage Potential": 8,
-      "Reproducibility": 6,
-      "Exploitability": 5,
-      "Affected Users": 9,
-      "Discoverability": 7
+      "Damage Potential": 3,
+      "Reproducibility": 2,
+      "Exploitability": 2,
+      "Affected Users": 3,
+      "Discoverability": 2
     }},
     {{
       "Threat Type": "Spoofing",
       "Scenario": "An attacker could intercept the OAuth2 token exchange process through a Man-in-the-Middle (MitM) attack.",
-      "Damage Potential": 8,
-      "Reproducibility": 7,
-      "Exploitability": 6,
-      "Affected Users": 8,
-      "Discoverability": 6
+      "Damage Potential": 3,
+      "Reproducibility": 2,
+      "Exploitability": 2,
+      "Affected Users": 3,
+      "Discoverability": 2
     }}
   ]
 }}
@@ -132,25 +140,25 @@ def get_dread_assessment(api_key, model_name, prompt):
             task_description="Perform a DREAD risk assessment for the identified security threats.",
             approach_description="""1. For each threat in the provided threat model:
    - Analyze the threat type and scenario in detail
-   - Evaluate Damage Potential (1-10):
+   - Evaluate Damage Potential (1-3):
      * Consider direct and indirect damage
      * Assess financial, reputational, and operational impact
-   - Evaluate Reproducibility (1-10):
+   - Evaluate Reproducibility (1-3):
      * Assess how reliably the attack can be reproduced
      * Consider required conditions and resources
-   - Evaluate Exploitability (1-10):
+   - Evaluate Exploitability (1-3):
      * Analyze technical complexity
      * Consider required skills and tools
-   - Evaluate Affected Users (1-10):
+   - Evaluate Affected Users (1-3):
      * Determine scope of impact
      * Consider both direct and indirect users
-   - Evaluate Discoverability (1-10):
+   - Evaluate Discoverability (1-3):
      * Assess how easily the vulnerability can be found
      * Consider visibility and detection methods
 2. Format output as JSON with 'Risk Assessment' array containing:
    - Threat Type
    - Scenario
-   - Numerical scores (1-10) for each DREAD category"""
+   - Numerical scores (1-3) for each DREAD category"""
         )
     else:
         system_prompt = "You are a helpful assistant designed to output JSON."

@@ -32,23 +32,25 @@ def json_to_markdown(threat_model, improvement_suggestions):
 # Function to create a prompt for generating a threat model
 def create_threat_model_prompt(app_type, authentication, internet_facing, sensitive_data, app_input):
     prompt = f"""
-Act as a cyber security expert with more than 20 years experience of using the STRIDE threat modelling methodology to produce comprehensive threat models for a wide range of applications. Your task is to analyze the provided code summary, README content, and application description to produce a list of specific threats for the application.
+Assume the role of a cybersecurity expert with over 20 years of experience applying the STRIDE threat modeling methodology to develop detailed threat models for diverse software systems. Your job is to evaluate the given application description, code summary, and README content to identify specific security threats relevant to the application.
+Pay particular attention to the README, as it often reveals crucial insights about the application's design, architecture, and potential security issues.
+For each STRIDE category (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege), identify 3 to 4 realistic and relevant threat scenarios. Each scenario should describe a plausible way the threat could occur within the context of the specific application. Make sure your analysis reflects the actual information provided—tailor your responses accordingly.
 
-Pay special attention to the README content as it often provides valuable context about the project's purpose, architecture, and potential security considerations.
+Present your output in a JSON format with two main sections: "threat_model" and "improvement_suggestions".
+Under "threat_model", include an array of threat objects. Each object should have the following keys:
+1.) "Threat Type": the STRIDE category
+2.) "Scenario": a realistic threat scenario based on the application
+3.) "Potential Impact": the potential consequences if the threat is realized
 
-For each of the STRIDE categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege), list multiple (3 or 4) credible threats if applicable. Each threat scenario should provide a credible scenario in which the threat could occur in the context of the application. It is very important that your responses are tailored to reflect the details you are given.
+Under "improvement_suggestions", list specific pieces of additional information the user could provide to improve the threat model’s accuracy and depth. Focus these suggestions on identifying current information gaps, such as:
+1.)Missing architecture or component details
+2.)Unclear user authentication processes
+3.) Vague or missing data flow descriptions
+4.) Lack of clarity on the technology stack
+5.) Undefined system boundaries or trust levels
+6.) Missing details about how sensitive data is managed
 
-When providing the threat model, use a JSON formatted response with the keys "threat_model" and "improvement_suggestions". Under "threat_model", include an array of objects with the keys "Threat Type", "Scenario", and "Potential Impact". 
-
-Under "improvement_suggestions", include an array of strings that suggest what additional information or details the user could provide to make the threat model more comprehensive and accurate in the next iteration. Focus on identifying gaps in the provided application description that, if filled, would enable a more detailed and precise threat analysis. For example:
-- Missing architectural details that would help identify more specific threats
-- Unclear authentication flows that need more detail
-- Incomplete data flow descriptions
-- Missing technical stack information
-- Unclear system boundaries or trust zones
-- Incomplete description of sensitive data handling
-
-Do not provide general security recommendations - focus only on what additional information would help create a better threat model.
+Avoid offering generic security advice—only highlight what specific additional information is needed to perform a more refined and accurate threat assessment.
 
 APPLICATION TYPE: {app_type}
 AUTHENTICATION METHODS: {authentication}
